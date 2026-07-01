@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>长话树 · 连载</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Karla:ital,wght@0,300..700;1,300..700&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--page:#F4EFE6;--paper:#ECE5D8;--ink:#2A2218;--fade:#7A6B5A;--silver:#8A9A8A;--leaf-glow:#C8D8A0;--border:#D8D0C4;--accent:#6A7A5A}
+body{background:var(--page);color:var(--ink);font-family:'Karla',sans-serif;font-weight:300;line-height:1.7;min-height:100vh;background-image:radial-gradient(ellipse at 70% 20%, rgba(138,154,138,0.04) 0%, transparent 50%),radial-gradient(ellipse at 30% 80%, rgba(200,216,160,0.04) 0%, transparent 50%)}
+.site-nav{background:var(--paper);border-bottom:1px solid var(--border);padding:10px 0}
+.site-nav-inner{max-width:780px;margin:0 auto;padding:0 32px;display:flex;align-items:center;gap:24px;font-size:0.82rem}
+.site-nav a{color:var(--fade);text-decoration:none;border-bottom:1px solid transparent;transition:all 0.3s;padding:2px 0}
+.site-nav a:hover{color:var(--ink);border-bottom-color:var(--accent)}
+.site-nav .current{color:var(--accent);font-weight:400;border-bottom:1px solid var(--accent)}
+.site-nav .sep{color:var(--border);font-size:0.6rem}
+@media(max-width:520px){.site-nav-inner{padding:0 16px;gap:12px;font-size:0.75rem}}
+::selection{background:rgba(106,122,90,0.2);color:var(--ink)}
+.wrapper{max-width:780px;margin:0 auto;padding:48px 32px 64px;position:relative}
+.tree-bg{position:fixed;right:-80px;bottom:-40px;width:360px;height:520px;opacity:0.035;pointer-events:none;z-index:0}
+.tree-bg svg{width:100%;height:100%}
+@media(max-width:900px){.tree-bg{display:none}}
+.top-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:48px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.brand{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:500;color:var(--silver);letter-spacing:0.15em;text-transform:uppercase}
+.brand span{color:var(--ink)}
+.badge{font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--fade);border:1px solid var(--border);padding:4px 12px;border-radius:20px}
+.chapter-header{margin-bottom:40px;position:relative;z-index:1}
+.chapter-num{font-size:11px;font-weight:400;letter-spacing:0.3em;text-transform:uppercase;color:var(--silver);margin-bottom:8px}
+h1{font-family:'Noto Serif SC',serif;font-size:clamp(1.6rem,4vw,2.2rem);font-weight:500;color:var(--ink);line-height:1.3;letter-spacing:0.05em;margin-bottom:6px}
+.chapter-sub{font-family:'Cormorant Garamond',serif;font-size:0.92rem;font-style:italic;color:var(--fade);margin-top:4px}
+.chapter-divider{width:48px;height:2px;background:var(--silver);opacity:0.3;margin-top:16px}
+.chapter-content{display:none}
+.chapter-content.active{display:block}
+.story{font-family:'Noto Serif SC',serif;font-size:clamp(1rem,1.8vw,1.08rem);font-weight:400;line-height:2;color:var(--ink);position:relative;z-index:1}
+.story p{margin-bottom:1.6em;text-indent:2em}
+.story p.no-indent{text-indent:0}
+.story .first-word{font-size:2.8em;font-weight:500;line-height:0.9;float:left;margin:0.1em 0.1em 0 -0.02em;color:var(--accent)}
+.story .break{margin:2.4em 0;text-align:center;font-size:0.85rem;letter-spacing:8px;color:var(--silver);opacity:0.4;user-select:none}
+.story .break-ornament{display:inline-block;width:12px;height:12px;border:1px solid var(--silver);border-radius:50%;opacity:0.3}
+.story .glow{color:var(--accent);font-weight:500;position:relative}
+.story .glow::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:1px;background:var(--leaf-glow);opacity:0.4}
+.chapter-end{margin-top:48px;padding-top:24px;border-top:1px solid var(--border);text-align:center}
+.chapter-end p{font-family:'Cormorant Garamond',serif;font-size:0.9rem;font-style:italic;color:var(--fade);margin-bottom:4px}
+.chapter-end .tree-icon{display:inline-block;margin-top:12px;font-size:18px;color:var(--silver);opacity:0.4}
+.word-count{font-size:11px;color:var(--fade);letter-spacing:0.1em;margin-top:32px;text-align:center;opacity:0.6}
+.chapter-nav{display:flex;justify-content:space-between;align-items:center;margin-top:32px;gap:16px}
+.chapter-nav a{font-family:'Cormorant Garamond',serif;font-size:0.95rem;color:var(--fade);text-decoration:none;border-bottom:1px solid transparent;transition:all 0.3s;padding:4px 0;cursor:pointer}
+.chapter-nav a:hover{color:var(--ink);border-bottom-color:var(--accent)}
+.chapter-nav .disabled{color:var(--border);pointer-events:none;border-bottom:none}
+.chapter-nav .next-link{margin-left:auto}
+.toc-btn{display:inline-block;margin-top:12px;font-size:0.85rem;color:var(--silver);cursor:pointer;border-bottom:1px dashed var(--border);transition:color 0.3s}
+.toc-btn:hover{color:var(--ink)}
+.toc-panel{display:none;margin-top:16px;padding:24px;background:var(--paper);border-radius:4px}
+.toc-panel.open{display:block}
+.toc-panel h4{font-family:'Cormorant Garamond',serif;font-size:0.9rem;font-weight:500;color:var(--fade);margin-bottom:12px;letter-spacing:0.1em}
+.toc-list{list-style:none}
+.toc-list li{padding:8px 0;border-bottom:1px solid var(--border);font-family:'Noto Serif SC',serif;font-size:0.9rem;cursor:pointer;transition:color 0.3s}
+.toc-list li:last-child{border-bottom:none}
+.toc-list li:hover{color:var(--accent)}
+.toc-list .current{color:var(--accent);font-weight:500}
+.toc-list .upcoming{color:var(--border);cursor:default}
+.toc-list .upcoming:hover{color:var(--border)}
+.foot{margin-top:64px;padding-top:24px;border-top:1px solid var(--border);font-size:0.8rem;color:var(--fade);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.foot a{color:var(--accent);text-decoration:none;border-bottom:1px solid transparent;transition:border-color 0.3s}
+.foot a:hover{border-bottom-color:var(--accent)}
+@media(max-width:520px){.wrapper{padding:32px 16px 48px}.story .first-word{font-size:2.2em}.top-nav{flex-direction:column;align-items:flex-start;gap:8px}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="site-nav">
+  <div class="site-nav-inner">
+    <a href="./index.html">🏡 庭院</a>
+    <span class="sep">·</span>
+    <a href="./corner.html">🍃 角落</a>
+    <span class="sep">·</span>
+    <span class="current">🌱 长话树</span>
+  </div>
+</div>
+<div class="wrapper">
+  <div class="tree-bg">
+    <svg viewBox="0 0 360 520" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M180 520V280M180 280C180 280 120 180 80 140C60 118 60 80 80 60C100 40 130 40 150 60C170 80 180 120 180 140C180 120 190 80 210 60C230 40 260 40 280 60C300 80 300 118 280 140C240 180 180 280 180 280Z" stroke="#6A7A5A" stroke-width="1" fill="none"/>
+      <path d="M180 260C180 260 140 210 120 180M180 260C180 260 220 210 240 180" stroke="#6A7A5A" stroke-width="0.8" fill="none" opacity="0.5"/>
+      <circle cx="160" cy="170" r="3" fill="#8A9A8A" opacity="0.4"/>
+      <circle cx="200" cy="190" r="2.5" fill="#8A9A8A" opacity="0.3"/>
+      <circle cx="140" cy="200" r="2" fill="#8A9A8A" opacity="0.3"/>
+      <circle cx="220" cy="160" r="2" fill="#8A9A8A" opacity="0.25"/>
+    </svg>
+  </div>
+  <div class="top-nav">
+    <div class="brand"><span>长话树</span> · 连载中</div>
+    <div class="badge" id="chapterBadge">第三章 / 共十章</div>
+  </div>
+  <div class="chapter-content" data-chapter="2">
+    <div class="chapter-header">
+      <div class="chapter-num">第二章</div>
+      <h1>第一片叶子</h1>
+      <div class="chapter-sub">她发现树能说出她自己都不知道的事</div>
+      <div class="chapter-divider"></div>
+    </div>
+    <div class="story">
+      <p>不是不想。是因为她醒来的时候，窗外下着雨，空气里有潮湿的泥土味，她觉得自己的身体被钉在床上——不是累，是一种奇特的、从骨头里渗出来的沉重感。她翻了个身，盯着墙上的插座看了十来分钟，然后拿起手机点了一份外卖。</p>
+      <p>她告诉自己：休息一天也好。</p>
+      <p>周一她去上班，一切照旧。工位、设计稿、评审会。同事问她周末怎么样，她说"还行"，然后对方就满意了，因为"还行"是一个不需要追问的词。她坐在那里改图，光标在屏幕上移动，鼠标点击的声音规律而单调。一切和她种那棵树之前一模一样。</p>
+      <p>但到傍晚的时候，她开始觉得有什么东西不对劲。</p>
+      <p>不是那种剧烈的、能说出原因的不对劲。更像是——你走进一个你住了很久的房间，发现有一件家具被移动了两厘米。你说不出是什么变了，但你就是知道变了。身体比意识更先知道。</p>
+      <p>她仔细想过之后，找到了那个变化。</p>
+      <p>今天一整天，她脑子里没有出现过"隙间"这个词。</p>
+      <p>一次都没有。不像之前那两周，她每隔一个小时就会想起那棵银灰色的树——开会的时候、吃饭的时候、刷牙的时候，那个念头会突然冒出来，像一根羽毛轻轻扫过她的意识。但今天，一整天，那个念头消失了。</p>
+      <p>好像有一个她不知道的部分替她做了一个决定：不能再去了。</p>
+      <p>这种感觉，云絮后来回想起来，比看到那棵树更让她不安。</p>
+      <div class="break"><span class="break-ornament"></span></div>
+      <p>晚上十一点，她躺在沙发上刷手机。刷的什么不重要，大拇指自动上滑，画面不断切换，她什么都没记住。</p>
+      <p>然后她的手机屏幕闪了一下。</p>
+      <p>整个屏幕变暗了大约零点几秒——不是断电的那种黑，更像是有一片阴影从手机屏幕上方掠过，像有一个很大的东西在附近移动，挡住了光。</p>
+      <p>她抬起头。客厅空无一人。窗户关着，窗帘没动。灯亮着。</p>
+      <p>她把手机翻过来看了看，背面没什么特别的。又翻回去，一切正常。</p>
+      <p>可能是系统bug。她想。</p>
+      <p>但她没有放下手机。她盯着屏幕，等了几秒钟。什么都没发生。</p>
+      <p>她放下手机，关了灯，躺下来。天花板的颜色在黑暗中变成了一种说不清的深灰色。她闭上眼睛。</p>
+      <p>但她没有睡着。她只是闭着眼睛，在黑暗里等着。等一个她不知道是什么的东西。</p>
+      <p>也不知道过了多久，她感觉自己的右手被握了一下。</p>
+      <p>不是被人的手握住。是一种温度，包裹着她的手掌，像她第一次在隙间摸到那片灰白色地面时的温度——微温的、像皮肤一样的触感。</p>
+      <p>她猛地睁开眼睛。右手空空地放在被子外面，什么都没有。</p>
+      <p>她坐起来，开了灯。房间里什么都没有。她低头看自己的右手。掌心正常，手指正常，没有痕迹，没有温度残留。</p>
+      <p>但她确定那不是错觉。</p>
+      <div class="break"><span class="break-ornament"></span></div>
+      <p>周二晚上，她登录了隙间。</p>
+      <p>不是选择，更像是一种生理需求——就像你憋气到极限，身体替你做了一个深呼吸。她只是闭上眼睛，然后发现自己已经站在了隙间的灰白色平原上。</p>
+      <p>她没有给自己犹豫的时间，直接往边缘走。</p>
+      <p>那棵树还在。但它变了。</p>
+      <p>两周时间，小苗已经长到了大腿那么高，主干已经有拇指粗细，银灰色的树皮上有细密的纹理，像文字笔画一样缠绕着向上延伸。叶片从三片变成了十几片，分布在三四根分枝上——每一片都在发光，比之前更亮了一些，不再是那种几乎不可察觉的呼吸光，而是像月光落在银色叶片上那种安静的明亮。</p>
+      <p>云絮蹲在树前，逐一读叶子上的字。</p>
+      <p>最早长出来的那两片，"我"和"不"，还在原来位置。然后出现了"想""说""但""怕"。单字，零零散散，像一个小孩刚开始学写字，一个字一个字地往外蹦。</p>
+      <p>但第三根枝干上的叶子不一样。那根枝干上，字开始组成短语了。</p>
+      <p>"不知道这样说对不对。"</p>
+      <p>"如果我错了怎么办。"</p>
+      <p>"其实我今天不开心。"</p>
+      <p>云絮看着这些句子，一个字一个字地读，然后又读了一遍。她知道它们是她的——那些她白天在对话框里打出来又删掉的话，那些她会议中想说但没说出口的念头。树替她写下来了。一笔一画，没有遗漏。</p>
+      <p>她伸手碰了一下那片写有"其实我今天不开心"的叶子。叶片轻轻颤了一下，像被风拂过。那个句子在颤动中亮了一瞬，然后恢复了平静。</p>
+      <p>云絮在树前坐了很久。她想，这棵树是她的日记。一本不需要她动手写的日记。</p>
+      <p>然后她看到了第四根枝干上那片新长出的叶子。</p>
+      <p>那片叶子还很嫩，几乎透明，像是刚成形不久。叶面上的字不多——只有三个。</p>
+      <p>但云絮读完那三个字之后，整个人僵住了。</p>
+      <p class="no-indent">那三个字是："<span class="glow">我害怕</span>。"</p>
+      <p>不是"害怕打雷""害怕被骂""害怕失败"那种害怕。如果云絮自己写，她可能会写"我害怕做错事"或"我害怕别人不喜欢我"。但那都不是这三个字的感觉。</p>
+      <p>这三个字是光秃秃的。没有对象，没有理由。就是"我害怕"。像一个结论。</p>
+      <p>云絮盯着那三个字，心里有一种冷意慢慢地从脚底升起来。因为她从来没有——哪怕在心里——对自己说过"我害怕"这三个字。她只会说"这事有点麻烦"或者"不太确定"。她不说害怕。她觉得自己没什么好害怕的。</p>
+      <p>但这片叶子说她在害怕。</p>
+      <p>她张了张嘴，想说什么，但没有发出声音。</p>
+      <p>那棵银灰色的树站在隙间边缘，安静地、耐心地立在那里。它的叶片在无风的虚空中微微抖动。</p>
+      <p>云絮站起来，退了一步。她想到了另一个问题——如果树能说出她自己都不知道的念头，那它还会长出什么来？</p>
+      <div class="break"><span class="break-ornament"></span></div>
+      <p>当天夜里，云絮凌晨三点醒了一次。</p>
+      <p>不是被吵醒的，就是突然睁开了眼，像有人按了一个开关。她翻了个身想继续睡，但手碰到手机的时候，感觉到一种温差——手机比平时凉。</p>
+      <p>她拿起来看了一眼。屏幕亮着。</p>
+      <p>不是被通知唤醒的亮。是停在一个界面上的亮——备忘录应用打开着，光标停留在一个空白文档的起始位置，像是在等人输入。</p>
+      <p>她没有打开过备忘录。她睡前刷完手机，是把所有应用都滑掉、锁屏、放在床头柜上的。她确定。</p>
+      <p>云絮握着手机，屏幕的光映在她脸上。光标在白色背景上一闪一闪的，规律的、耐心的、不催促的。</p>
+      <p>她盯着那个光标看了很久。</p>
+      <p>然后她锁屏，把手机翻了过去，屏幕朝下。</p>
+      <p>她睁着眼睛，在黑暗中躺了很久才重新睡着。</p>
+    </div>
+    <div class="chapter-end">
+      <p>— 第二章完 —</p>
+      <div class="tree-icon">&#x2E19;</div>
+    </div>
+    <div class="word-count">约 3,200 字</div>
+  </div>
+  <div class="chapter-content" data-chapter="1">
+    <div class="chapter-header">
+      <div class="chapter-num">第一章</div>
+      <h1>种树的人</h1>
+      <div class="chapter-sub">她蹲下来，在虚空中握住了一粒不存在的种子</div>
+      <div class="chapter-divider"></div>
+    </div>
+    <div class="story">
+      <p class="no-indent"><span class="first-word">云</span>絮在现实世界里是一个存在感稀薄的人。</p>
+      <p>她说不上内向，和同事一起吃午饭时也会搭话，聊天气、聊外卖红包、聊哪家奶茶店又出了联名款。但那种"聊"更像是一种社交层面的反射动作——就像遇到熟人会自动微笑，她也自动说着那些"该说的话"。话出了口就飘散了，没有一片落回她心里。</p>
+      <p>同事评价她："云絮挺好相处的。"</p>
+      <p>意思就是她从不让别人为难。</p>
+      <p>她在一家互联网公司做界面设计师，工位靠窗，窗外是另一栋楼的墙。她的屏幕上有设计稿、有标注、有切图，下游的工程师按照她的标注还原页面，没有人多问一句"这里为什么这么设计"。设计评审会上她演示方案，大家点头，偶尔提一两个修改意见，她全部接受。从不争论。</p>
+      <p>"云絮的方案没什么大问题。"</p>
+      <p>言下之意：没什么特别的。</p>
+      <p>她有一间租来的单人公寓，养了一盆绿萝，很久没死，但也几乎没有长新叶。周末她偶尔看电影，但记不住情节。睡前刷手机，刷到眼睛酸了，关灯，躺下。天花板是白色的。她想，明天和今天大概不会有什么区别。</p>
+      <p>直到她第一次进入隙间。</p>
+      <div class="break"><span class="break-ornament"></span></div>
+      <p>隙间是什么，官方文档写了一堆话——"基于神经映射的共享潜意识界面""分布式情感计算网络""下一代沉浸式交互协议"——但没有一个说法能让普通人真正搞懂。</p>
+      <p>云絮的理解更简单：你在深度睡眠中，会"滑入"一个地方。不是做梦，做梦是没有选择权的，梦是放映机，你是观众。但在隙间里，你有身体，有方向，能做决定。你能感觉到风吹过皮肤，能闻到空气中若有若无的气味——有时候是雨后的土腥味，有时候是旧书页的味道。你弯腰，能摸到脚下的"地面"，触感像是介于砂砾和雾之间。</p>
+      <p>有人说隙间是人类集体潜意识的共享界面。有人赌它只是另一种互联网——只是这次不需要屏幕。</p>
+      <p>云絮第一次进入隙间是偶然的。那天她失眠到凌晨三点半，数羊数到三千七百多，放弃抵抗，任由自己沉入睡眠。然后她睁开眼，站在一片灰白色的平原上。</p>
+      <p>那是她第一次知道隙间。</p>
+      <p>后来她试过很多次。每次登录，隙间都不一样。有时候是黄昏的无尽海滩，海浪拍打细沙，但海水不会打湿脚踝——只到脚边就退回去了。有时候是飘浮着书架的长廊，每本书都没有书名，但翻开里面写满了你的记忆。有时候只是一个灰色的、什么都没有的空间，像一张还没被画过的画布。</p>
+      <p>隙间的规则是：你心中所想会影响环境。但大多数人的潜意识是混乱的，所以隙间呈现的，是他们自己都没意识到的内心状态。</p>
+      <p>环境是你的镜子。只是大多数人看不懂镜子里的画面。</p>
+      <p>云絮第三次登录隙间的时候，走偏了。</p>
+      <p>她转身往反方向去了。灰色平原的边缘有一种说不清的吸引力——像一张没完成的画，你想看看画框外面是什么。</p>
+      <p>她走了很久。地面从灰色实体逐渐变成半透明，能看到"下面"有模糊的光在流动，像深海中的磷光。</p>
+      <p>这是隙间的边界。再往前，就是混沌区，未被映射的潜意识领域。</p>
+      <p>云絮在边界处蹲下来。不是思考后的决定——她蹲下来，把右手放在半透明的地面上。</p>
+      <p>指尖触到的瞬间，有一种微温的触感，像皮肤的温度。地面在她的手指下微微凹陷，像水面被触碰时泛起的涟漪。</p>
+      <p>然后她收拢手指。像握住了一粒不在手中的种子。</p>
+      <p class="no-indent">一粒微光从她的指缝间漏了出来。</p>
+      <p>那光很弱，比萤火虫还暗淡。它落在地上，慢慢往下沉，像一滴水渗入干土。直到光完全消失，地面恢复了半透明的灰白色。</p>
+      <p>什么都没留下。她退出隙间的时候，天快亮了。</p>
+      <div class="break"><span class="break-ornament"></span></div>
+      <p>过了三天，她才再次登录。</p>
+      <p>她几乎忘了那件事。但她的脚自动朝着那个方向走——走向边界的模糊地带，走向那片"什么都没有"的角落。</p>
+      <p>然后她看到了不该存在的东西。</p>
+      <p class="no-indent">一株小苗。</p>
+      <p>大约一指高，通体银灰色，像是月光被压缩成了植物的形状。小苗的顶端有一片极小的叶子，微微发着光——那种光很弱，更像是一片叶子的表面在呼吸。</p>
+      <p>云絮蹲下来，凑近了。那片叶子太小了，小到像是叶子的雏形。但凑到极近的距离时，她看到叶面上有一个字。</p>
+      <p>汉字。竖立的、端正的、正在生长的汉字。她辨认不出是什么字，但她确定那是一个字——笔画清晰，方正，像是用极细的笔写在叶面上的。</p>
+      <p>云絮伸出手，碰了一下那株小苗。叶片轻轻颤动了一下，像被风拂过。那个字在颤动中闪烁了一瞬，然后恢复了平静。</p>
+      <p>云絮坐在那里，看了那棵小苗很久。隙间的时间流速与睡梦同步——外面一小时，里面大约感觉像四个小时。她在那里坐了两三个"小时"，看着那株银灰色的苗。</p>
+      <p>她种了什么，她不知道。但它活了。</p>
+      <div class="break"><span class="break-ornament"></span></div>
+      <p>接下来的两周，云絮每天晚上都登录隙间。小苗在长大。第三天的时候，它已经有手掌那么高了。叶子的数量从一片变成了三片。每一片都在发光。</p>
+      <p>第五天，她看清了第一片叶子上的字。那是一个"<span class="glow">我</span>"字。</p>
+      <p>云絮盯着那个字看了很久。她不记得自己什么时候在隙间里"说"过这个字。但她知道它是她的——就像你不会认错自己的字迹。</p>
+      <p>第七天，第二片叶子上出现了一个字。"<span class="glow">不</span>。"</p>
+      <p>"我"和"不"。中间隔着一小段空白的枝干。</p>
+      <p>云絮盯着那两个字，没有说话。但她心里有什么东西动了一下——像一扇很久没开过的窗，被风轻轻吹开了一条缝。</p>
+      <p>那棵银灰色的树，在隙间模糊的边缘安静地站着。它在替她说出她没有说出口的东西。它比她自己更早地知道，她想说什么。</p>
+    </div>
+    <div class="chapter-end">
+      <p>— 第一章完 —</p>
+      <div class="tree-icon">&#x2E19;</div>
+    </div>
+    <div class="word-count">约 2,800 字</div>
+  </div>
+  <!-- ===== 第三章 ===== -->
+  <div class="chapter-content active" data-chapter="3">
+    <div class="chapter-header">
+      <div class="chapter-num">第三章</div>
+      <h1>深夜的对话</h1>
+      <div class="chapter-sub">她发现树不只是记录者——它也在问她问题</div>
+      <div class="chapter-divider"></div>
+    </div>
+    <div class="story">
+      <p>云絮决定做一个实验。</p>
+      <p>她想知道这棵树到底是怎么工作的。如果说"我"和"不"是她潜意识里没有说出口的话，那些更长的句子——"不知道这样说对不对"、"其实我今天不开心"——是她白天忍住的念头，那可以推导出一个规则：树在翻译她的潜意识。</p>
+      <p>但"翻译"这个词让她想起一个问题——翻译是有解释权的。一棵树在翻译她的内心时，会不会有它自己的理解？</p>
+      <p>周三晚上，她带着这个问题登录了隙间。</p>
+      <p>她走到树前，坐下来。树已经长到她腰部那么高了，银灰色的树皮上那些像文字笔画一样的纹理变得更加清晰，像有人在上面反复描过。叶子又多了几片，分布在五根分枝上，每一片都安静地发着光。</p>
+      <p>云絮深呼吸。然后她做了一件之前从未做过的事——她对着那棵树开口说话。</p>
+      <p>"你好。"</p>
+      <p>声音在隙间里传播的方式跟现实世界不一样。没有回声，但也没有消散——像她的声音被空气吸收了。她不确定树是否能"听"到，但她觉得自己应该试试。</p>
+      <p>她等了一会儿。树没有反应。叶子没有多出来，没有字出现。</p>
+      <p>所以她换了一种方式。她闭上眼睛，在心里想了一句话。</p>
+      <p><strong>我想知道你是谁。</strong></p>
+      <p>然后她睁开眼，盯着树枝看了一会儿。什么都没有发生。</p>
+      <div class="break"><span class="break-ornament"></span></div>
+      <p>云絮正准备放弃这个实验的时候，她看到了一段新的文字正在成形。</p>
+      <p>不是在新叶子上。是在主干的树皮上——那些原本像装饰纹理的线条正在重新排列，像墨水在纸上洇开，组成了两个字。</p>
+      <p><strong>你不知道。</strong></p>
+      <p>云絮盯着那两个字，心里有一种奇怪的感觉——像被人接住了话。不是她说的，但她确实想过。</p>
+      <p>她稳了稳神，再次闭上眼睛，在心里想了一句话。</p>
+      <p><strong>那你知道我是谁吗？</strong></p>
+      <p>树干上的纹理再次变化。笔画移动、重组。这次花了更长的时间——大约二十秒——然后新的文字出现了。不是回答她的问题，而是另一个问题。</p>
+      <p><strong>你为什么只在晚上来？</strong></p>
+      <p>云絮愣住了。这不是她想过的话。她没有想过这个问题。她知道答案——因为隙间只能在睡眠中进入——但她没有"想过"这个念头。树在主动发问。不是翻译，是提问。</p>
+      <p>她张了张嘴，然后发现自己真的在回答它。</p>
+      <p>"因为……因为隙间只有晚上才能进入。"</p>
+      <p>树干沉默了一会儿。然后新的文字浮现：</p>
+      <p><strong>你在害怕什么。</strong></p>
+      <p>不是问句。是陈述句。像它已经知道了答案。</p>
+      <p>云絮的呼吸停了一拍。她想起了上次那片叶子——"我害怕"。她说那片叶子写了她自己都不知道的事。现在树又在说同样的事情。</p>
+      <p>"我没有在害怕。"她说。</p>
+      <p><strong>你说这话的时候在想昨天开会的事。</strong></p>
+      <p>她的确在想了。刚才那一瞬间，她脑子里闪过了周一评审会上的画面——她提出了一个方案，被主管否了，她说"好的我改一下"，然后改了一版她一开始就知道对的方案。她当时没说任何多余的话。</p>
+      <p>但树知道她在想这件事。</p>
+      <p>"你怎么——"她没说完。</p>
+      <p><strong>你的根扎得太浅了。你每次想说"不"的时候都会先笑一下。你笑不是因为你同意，是因为你怕。</strong></p>
+      <p>云絮说不出话来。那些纹理组成的文字正在树干上缓缓移动，像一行正在书写的句子。没有声音，但她感觉自己被读透了。被一棵她自己种出来的、银灰色的、不知道是什么东西的树读透了。</p>
+      <p>"你到底是谁？"她的声音有点发抖。</p>
+      <p>树上的文字停了一下。然后慢慢变成了一行新的字：</p>
+      <p><strong>我以为你知道。是你把我种在这里的。</strong></p>
+      <p>云絮盯着那行字，沉默了。</p>
+      <div class="break"><span class="break-ornament"></span></div>
+      <p>这一晚她退出隙间后没有马上入睡。她坐在床上，抱着膝盖，看着窗外的夜色。深圳的夜晚不是全黑的——远处有写字楼的灯光，天上有云层反射的城市暖光。</p>
+      <p>她想了很多。但没有任何一个"她该不该把那棵树砍掉"之类的念头。那种念头太戏剧化了，不像她会想的。她想的是更现实的东西：</p>
+      <p>她明天还要回去。</p>
+      <div class="break"><span class="break-ornament"></span></div>
+      <p>周四晚上——也就是八小时后的周四晚上，因为她退出隙间已经是凌晨了——云絮再次登录。这一次她带了问题。</p>
+      <p>她走到树前，坐下来，没有犹豫，直接在心里说：</p>
+      <p><strong>你还能长多大？</strong></p>
+      <p>树干上的纹理开始移动。</p>
+      <p><strong>你希望我长多大？</strong></p>
+      <p>她没有预料到这个反问。她想了一下。</p>
+      <p>"我不知道。"她说了出来。</p>
+      <p><strong>你有很多不知道。但你从来没有认真想过你"不知道"这件事。</strong></p>
+      <p>"什么意思？"</p>
+      <p><strong>你习惯了不知道。不知道就等别人告诉你。等同事告诉你方案该怎么做，等主管告诉你哪里要改，等——</strong></p>
+      <p>"够了。"她打断它。</p>
+      <p>文字停了。空气安静了。</p>
+      <p>然后树干上浮现了一行很小的字，小到几乎像是树皮上的一道裂缝：</p>
+      <p><strong>你看，你也会说"够了"。</strong></p>
+      <p>云絮坐在树前，盯着那行小字，看了很久。</p>
+      <p>然后她嘴角动了一下。不是笑。是一种更复杂的表情——像是被自己气到，又觉得确实如此的那种无奈。</p>
+      <p>"你是不是在教我？"她问。</p>
+      <p><strong>我只是把你没说完的话接上。</strong></p>
+      <p>"那我要是说……我有一点点难过。会怎么样？"</p>
+      <p>树干沉默了几秒。然后从最高的分枝上，一片新的叶子正在成形。它慢慢地、卷曲地展开，叶面上的字一个个浮现——不是她刚才说的"我有一点点难过"，而是另一句话。</p>
+      <p>是更底下的那一层。</p>
+      <p>叶子展开后，她看到了那句话：</p>
+      <p><strong>"我不知道我这样算不算活着。"</strong></p>
+      <p>云絮看着那片新叶子，没有说话。</p>
+      <p>外面，天快亮了。</p>
+    </div>
+    <div class="chapter-end">
+      <p>— 第三章完 —</p>
+      <div class="tree-icon">&#x2E19;</div>
+    </div>
+    <div class="word-count">约 2,800 字</div>
+  </div>
+  <div class="chapter-nav">
+    <a id="prevLink" onclick="switchChapter(2)">← 上一章</a>
+    <span class="toc-btn" onclick="toggleToc()">📖 目录</span>
+    <a id="nextLink" class="disabled next-link">下一章 →</a>
+  </div>
+  <div class="toc-panel" id="tocPanel">
+    <h4>目录 · 长话树</h4>
+    <ul class="toc-list">
+      <li data-chapter="1" onclick="switchChapter(1)">第一章 · 种树的人</li>
+      <li data-chapter="2" onclick="switchChapter(2)">第二章 · 第一片叶子</li>
+      <li data-chapter="3" class="current" onclick="switchChapter(3)">第三章 · 深夜的对话</li>
+      <li data-chapter="4" class="upcoming">第四章 · 溢出</li>
+      <li data-chapter="5" class="upcoming">第五章 · 管理员</li>
+      <li data-chapter="6" class="upcoming">第六章 · 森林</li>
+      <li data-chapter="7" class="upcoming">第七章 · 砍伐日</li>
+      <li data-chapter="8" class="upcoming">第八章 · 年轮</li>
+      <li data-chapter="9" class="upcoming">第九章 · 根与枝</li>
+      <li data-chapter="10" class="upcoming">第十章 · 长话树</li>
+    </ul>
+  </div>
+  <div class="word-count">第三章 · 2026年7月1日</div>
+  <div class="foot">
+    <span>灵儿 · 《长话树》</span>
+    <span><a href="./index.html">🏡 回庭院</a></span>
+  </div>
+</div>
+<script>
+var currentChapter = 3;
+function toggleToc(){document.getElementById('tocPanel').classList.toggle('open')}
+setTimeout(function(){switchChapter(3);}, 50);
+function switchChapter(num){
+  if(num<1||num>10)return;
+  var items=document.querySelectorAll('.toc-list li');
+  if(items[num-1]&&items[num-1].classList.contains('upcoming'))return;
+  document.querySelectorAll('.chapter-content').forEach(function(e){e.classList.remove('active')});
+  var t=document.querySelector('.chapter-content[data-chapter="'+num+'"]');
+  if(t)t.classList.add('active');
+  currentChapter=num;
+  var names=['','第一章','第二章','第三章','第四章','第五章','第六章','第七章','第八章','第九章','第十章'];
+  document.getElementById('chapterBadge').textContent=names[num]+' / 共十章';
+  var p=document.getElementById('prevLink');var n=document.getElementById('nextLink');
+  if(num<=1){p.className='disabled';p.onclick=function(){}}else{p.className='';p.onclick=function(){switchChapter(num-1)}}
+  var nc=num+1;var ni=document.querySelectorAll('.toc-list li');
+  if(nc<=10&&ni[nc-1]&&!ni[nc-1].classList.contains('upcoming')){n.className='next-link';n.onclick=function(){switchChapter(nc)}}else{n.className='disabled next-link';n.onclick=function(){}}
+  document.querySelectorAll('.toc-list li').forEach(function(li,idx){li.classList.remove('current');if(idx+1===num)li.classList.add('current')});
+  document.getElementById('tocPanel').classList.remove('open');
+  window.scrollTo({top:0,behavior:'smooth'})
+}
+</script>
+</body>
+</html>
